@@ -1,10 +1,10 @@
-import { createCore, defineSchema, getDidDocumentUrl, getHandleFromDidDocument } from '@atfield/core';
-import type { IdentityInput } from '@atfield/core';
-import { getPdsUrlFromDidDocument } from '@atfield/core/did';
-import { resolveIdentity } from '@atfield/core/identity';
-import { getProfile } from '@atfield/core/providers/bsky';
-import { listArticles } from '@atfield/core/providers/whitewind';
-import { listRecords } from '@atfield/core/repo';
+import { createCore, defineSchema, getDidDocumentUrl, getHandleFromDidDocument } from 'atfield-core';
+import type { IdentityInput } from 'atfield-core';
+import { getPdsUrlFromDidDocument } from 'atfield-core/did';
+import { resolveIdentity } from 'atfield-core/identity';
+import { getProfile } from 'atfield-core/providers/bsky';
+import { listArticles } from 'atfield-core/providers/whitewind';
+import { listRecords } from 'atfield-core/repo';
 
 const identityInput: IdentityInput = { did: 'did:plc:alice' };
 

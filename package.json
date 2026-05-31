@@ -1,8 +1,11 @@
 {
-	"name": "@atfield/core",
-	"version": "0.0.1",
-	"private": true,
+	"name": "atfield-core",
+	"version": "0.1.0",
 	"type": "module",
+	"repository": {
+    "type": "git",
+    "url": "https://github.com/tassis/atfield-core"
+  },
 	"imports": {
 		"#core/core": "./src/core.ts",
 		"#core/core.types": "./src/core.types.ts",
@@ -55,6 +58,10 @@
 		}
 	},
 	"files": ["dist"],
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
 	"scripts": {
 		"build": "tsup",
 		"check": "tsc --noEmit -p tsconfig.json",

@@ -1,4 +1,4 @@
-# @atfield/core
+# atfield-core
 
 AT Protocol core primitives for ATField.
 
