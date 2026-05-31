@@ -1,6 +1,6 @@
 {
 	"name": "atfield-core",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"repository": {
     "type": "git",
@@ -24,6 +24,8 @@
 		"#core/providers/*": "./src/providers/*",
 		"#core/providers/bsky": "./src/providers/bsky/index.ts",
 		"#core/providers/bsky/*": "./src/providers/bsky/*",
+		"#core/providers/standardsite": "./src/providers/standardsite/index.ts",
+		"#core/providers/standardsite/*": "./src/providers/standardsite/*",
 		"#core/providers/whitewind": "./src/providers/whitewind/index.ts",
 		"#core/providers/whitewind/*": "./src/providers/whitewind/*"
 	},
@@ -51,6 +53,10 @@
 		"./providers/bsky": {
 			"types": "./dist/providers/bsky.d.ts",
 			"default": "./dist/providers/bsky.js"
+		},
+		"./providers/standardsite": {
+			"types": "./dist/providers/standardsite.d.ts",
+			"default": "./dist/providers/standardsite.js"
 		},
 		"./providers/whitewind": {
 			"types": "./dist/providers/whitewind.d.ts",

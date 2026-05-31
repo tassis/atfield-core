@@ -3,6 +3,7 @@ import type { IdentityInput } from 'atfield-core';
 import { getPdsUrlFromDidDocument } from 'atfield-core/did';
 import { resolveIdentity } from 'atfield-core/identity';
 import { getProfile } from 'atfield-core/providers/bsky';
+import { getPublication } from 'atfield-core/providers/standardsite';
 import { listArticles } from 'atfield-core/providers/whitewind';
 import { listRecords } from 'atfield-core/repo';
 
@@ -11,6 +12,7 @@ const identityInput: IdentityInput = { did: 'did:plc:alice' };
 void resolveIdentity;
 void listRecords;
 void getProfile;
+void getPublication;
 void listArticles;
 void identityInput;
 
@@ -64,6 +66,10 @@ if (typeof core.identity.resolve !== 'function') {
 
 if (typeof core.providers.bsky.getProfile !== 'function') {
 	throw new Error('Bsky provider client is not available');
+}
+
+if (typeof core.providers.standardsite.getPublication !== 'function') {
+	throw new Error('Standard Site provider client is not available');
 }
 
 if (typeof core.providers.whitewind.listArticles !== 'function') {

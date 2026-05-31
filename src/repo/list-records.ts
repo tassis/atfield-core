@@ -29,7 +29,6 @@ const listRecordsEndpoint = createJsonEndpoint({
 		url.searchParams.set('repo', params.identity.did);
 		url.searchParams.set('collection', params.collection);
 		url.searchParams.set('limit', String(params.limit));
-		url.searchParams.set('reverse', 'true');
 
 		if (params.cursor) {
 			url.searchParams.set('cursor', params.cursor);

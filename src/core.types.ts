@@ -1,6 +1,7 @@
 import type { AtfieldCoreDidClient } from '#core/did';
 import type { AtfieldCoreIdentityClient } from '#core/identity';
 import type { AtfieldCoreBskyProviderClient } from '#core/providers/bsky';
+import type { AtfieldCoreStandardSiteProviderClient } from '#core/providers/standardsite';
 import type { AtfieldCoreWhitewindProviderClient } from '#core/providers/whitewind';
 import type { AtfieldCoreRepoClient } from '#core/repo';
 import type { CoreTransport } from '#core/transport';
@@ -13,11 +14,13 @@ export type CoreServicesConfig = {
 export type { AtfieldCoreDidClient } from '#core/did';
 export type { AtfieldCoreIdentityClient } from '#core/identity';
 export type { AtfieldCoreBskyProviderClient } from '#core/providers/bsky';
+export type { AtfieldCoreStandardSiteProviderClient } from '#core/providers/standardsite';
 export type { AtfieldCoreWhitewindProviderClient } from '#core/providers/whitewind';
 export type { AtfieldCoreRepoClient } from '#core/repo';
 
 export type AtfieldCoreProvidersClient = {
 	bsky: AtfieldCoreBskyProviderClient;
+	standardsite: AtfieldCoreStandardSiteProviderClient;
 	whitewind: AtfieldCoreWhitewindProviderClient;
 };
 

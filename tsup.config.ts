@@ -8,6 +8,7 @@ export default defineConfig({
 		did: 'src/did/index.ts',
 		repo: 'src/repo/index.ts',
 		'providers/bsky': 'src/providers/bsky/index.ts',
+		'providers/standardsite': 'src/providers/standardsite/index.ts',
 		'providers/whitewind': 'src/providers/whitewind/index.ts'
 	},
 	format: ['esm'],

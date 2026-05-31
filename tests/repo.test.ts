@@ -50,7 +50,7 @@ describe('repo access', () => {
 			},
 			requestJson: async <T>({ url }: Parameters<CoreTransport['requestJson']>[0]) => {
 				expect(String(url)).toBe(
-					'https://pds.example.com/xrpc/com.atproto.repo.listRecords?repo=did%3Aplc%3Aalice&collection=com.whtwnd.blog.entry&limit=10&reverse=true&cursor=cursor-1'
+					'https://pds.example.com/xrpc/com.atproto.repo.listRecords?repo=did%3Aplc%3Aalice&collection=com.whtwnd.blog.entry&limit=10&cursor=cursor-1'
 				);
 
 				return {

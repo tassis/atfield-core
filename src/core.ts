@@ -1,6 +1,7 @@
 import { buildDidClient } from '#core/did';
 import { DEFAULT_HANDLE_RESOLVER_URL, buildIdentityClient } from '#core/identity';
 import { buildBskyProviderClient } from '#core/providers/bsky';
+import { buildStandardSiteProviderClient } from '#core/providers/standardsite';
 import { buildWhitewindProviderClient } from '#core/providers/whitewind';
 import { buildRepoClient } from '#core/repo';
 import { createTransport } from '#core/transport';
@@ -33,6 +34,7 @@ function buildProvidersClient(
 ): AtfieldCoreProvidersClient {
 	return {
 		bsky: buildBskyProviderClient(transport, services),
+		standardsite: buildStandardSiteProviderClient(transport),
 		whitewind: buildWhitewindProviderClient(transport)
 	};
 }
