@@ -11,3 +11,5 @@
 - Avoid reading or scanning `node_modules/` unless the user explicitly asks.
 - Keep `@atfield/core` protocol-focused and framework-agnostic.
 - Prefer DID-based internal APIs; accept handles only at identity-resolution boundaries.
+- Prefer the package-internal `#core/*` alias over deep relative imports.
+- Preserve bundled public entry outputs and public subpath API unless explicitly changing package surface.

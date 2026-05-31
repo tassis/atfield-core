@@ -1,20 +1,17 @@
-export { createCore, type AtfieldCore, type CoreServicesConfig } from './core';
-export { createJsonEndpoint, createTextEndpoint } from './endpoint';
-export {
-	createResolvedIdentity,
-	DEFAULT_HANDLE_RESOLVER_URL,
-	getCanonicalDid,
-	getHandleFromDidDocument,
-	getPdsUrlFromDidDocument
-} from './identity';
-export { CoreError, HttpResponseError, SchemaParseError } from './errors';
-export { defineSchema, unknownSchema, type Schema } from './schema';
-export { createTransport, type CoreTransport } from './transport';
+export { createCore } from '#core/core';
 export type {
-	DidDocument,
-	FetchLike,
-	IdentityInput,
-	RequestOptions,
-	ResolvedIdentity,
-	TransportResponse
-} from './types';
+	AtfieldCore,
+	AtfieldCoreDidClient,
+	AtfieldCoreIdentityClient,
+	AtfieldCoreRepoClient,
+	CoreServicesConfig
+} from '#core/core.types';
+export { getDidDocument, getDidDocumentUrl, getHandleFromDidDocument, getPdsUrlFromDidDocument } from '#core/did';
+export { CoreError, HttpResponseError, SchemaParseError } from '#core/errors';
+export { DEFAULT_HANDLE_RESOLVER_URL, resolveHandle, resolveIdentity } from '#core/identity';
+export { buildBlobUrl, getRecord, listRecords } from '#core/repo';
+export { defineSchema, unknownSchema, type Schema } from '#core/schema';
+export { createJsonEndpoint, createTextEndpoint, createTransport, type CoreTransport } from '#core/transport';
+export type { ResolveIdentityOptions, ResolvedIdentityInput } from '#core/identity';
+export type { RepoListRecordsResponse, RepoRecord } from '#core/repo';
+export type { DidDocument, FetchLike, IdentityInput, ResolvedIdentity } from '#core/types';

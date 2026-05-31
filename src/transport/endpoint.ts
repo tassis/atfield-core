@@ -1,9 +1,9 @@
-import type { Schema } from './schema';
-import type { CoreTransport } from './transport';
-import type { RequestOptions } from './types';
+import type { Schema } from '#core/schema';
+import type { CoreTransport } from '#core/transport/create-transport';
+import type { TransportRequestOptions } from '#core/transport/types';
 
 export function createJsonEndpoint<TParams, TResult>(options: {
-	buildRequest(params: TParams): RequestOptions;
+	buildRequest(params: TParams): TransportRequestOptions;
 	schema: Schema<TResult>;
 	fallbackMessage: string;
 }) {
@@ -17,7 +17,7 @@ export function createJsonEndpoint<TParams, TResult>(options: {
 }
 
 export function createTextEndpoint<TParams>(options: {
-	buildRequest(params: TParams): RequestOptions;
+	buildRequest(params: TParams): TransportRequestOptions;
 	fallbackMessage: string;
 }) {
 	return async (transport: CoreTransport, params: TParams): Promise<string> => {
