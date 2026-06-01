@@ -1,24 +1,23 @@
 import type { CoreTransport } from '#core/transport';
 import type { ResolvedIdentity } from '#core/types';
-import { getArticle } from '#core/providers/whitewind/get-article';
-import {
-	listArticles,
-	WHITEWIND_ARTICLE_COLLECTION
-} from '#core/providers/whitewind/list-articles';
-import { normalizeArticle } from '#core/providers/whitewind/normalize';
-import {
-	isVisibleWhitewindArticleRecord,
-	parseWhitewindArticleRecord
-} from '#core/providers/whitewind/types';
+import { getArticle, listArticles, WHITEWIND_ARTICLE_COLLECTION } from './article';
+import { normalizeArticle } from './normalization';
+import { isVisibleWhitewindArticleRecord, parseWhitewindArticleRecord } from './types';
+
+// After transport and identity are bound, the client only forwards getArticle params.
+type WhitewindGetArticleParams = Parameters<typeof getArticle>[2];
+
+// After transport and identity are bound, the client only forwards listArticles params.
+type WhitewindListArticlesOptions = Parameters<typeof listArticles>[2];
 
 export type AtfieldCoreWhitewindProviderClient = {
 	getArticle: (
 		identity: ResolvedIdentity,
-		params: Parameters<typeof getArticle>[2]
+		params: WhitewindGetArticleParams
 	) => ReturnType<typeof getArticle>;
 	listArticles: (
 		identity: ResolvedIdentity,
-		options: Parameters<typeof listArticles>[2]
+		options: WhitewindListArticlesOptions
 	) => ReturnType<typeof listArticles>;
 	normalizeArticle: typeof normalizeArticle;
 	parseArticleRecord: typeof parseWhitewindArticleRecord;

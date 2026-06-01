@@ -1,3 +1,5 @@
+import type { Result as StandardSiteContentResult } from './content';
+
 type StandardSiteBlob = {
 	ref?: {
 		$link?: string;
@@ -76,6 +78,7 @@ export type StandardSiteDocument = {
 	description?: string;
 	tags?: string[];
 	textContent?: string;
+	content?: StandardSiteContentResult;
 	updatedAt?: string;
 	coverImage?: string;
 	bskyPostUri?: string;
@@ -109,7 +112,9 @@ export function parseStandardSitePublicationRecord(input: unknown): StandardSite
 
 	if (
 		record.basicTheme !== undefined &&
-		(typeof record.basicTheme !== 'object' || record.basicTheme === null || Array.isArray(record.basicTheme))
+		(typeof record.basicTheme !== 'object' ||
+			record.basicTheme === null ||
+			Array.isArray(record.basicTheme))
 	) {
 		throw new Error('Invalid Standard Site publication field: basicTheme');
 	}
@@ -168,7 +173,10 @@ function assertOptionalString(value: unknown, field: string) {
 }
 
 function assertOptionalStringArray(value: unknown, field: string) {
-	if (value !== undefined && (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string'))) {
+	if (
+		value !== undefined &&
+		(!Array.isArray(value) || value.some((entry) => typeof entry !== 'string'))
+	) {
 		throw new Error(`Invalid Standard Site field: ${field}`);
 	}
 }
@@ -222,10 +230,7 @@ function assertOptionalPublicationPreferences(value: unknown) {
 		throw new Error('Invalid Standard Site publication preferences type');
 	}
 
-	if (
-		preferences.showInDiscover !== undefined &&
-		typeof preferences.showInDiscover !== 'boolean'
-	) {
+	if (preferences.showInDiscover !== undefined && typeof preferences.showInDiscover !== 'boolean') {
 		throw new Error('Invalid Standard Site publication field: preferences.showInDiscover');
 	}
 }
@@ -259,10 +264,7 @@ function assertOptionalContributors(value: unknown) {
 		}
 
 		const record = contributor as Record<string, unknown>;
-		if (
-			record.$type !== undefined &&
-			record.$type !== 'site.standard.document#contributor'
-		) {
+		if (record.$type !== undefined && record.$type !== 'site.standard.document#contributor') {
 			throw new Error('Invalid Standard Site document contributor type');
 		}
 

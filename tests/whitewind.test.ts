@@ -61,20 +61,20 @@ describe('whitewind article helpers', () => {
 			},
 			requestJson: async <T>() =>
 				({
-				cursor: 'next-cursor',
-				records: [
-					{
-						uri: 'at://did:plc:alice/com.whtwnd.blog.entry/public-one',
-						cid: 'cid-1',
-						value: { title: 'Public', content: 'A', visibility: 'public' }
-					},
-					{
-						uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
-						cid: 'cid-2',
-						value: { title: 'Private', content: 'B', visibility: 'private' }
-					}
-				]
-			}) as T
+					cursor: 'next-cursor',
+					records: [
+						{
+							uri: 'at://did:plc:alice/com.whtwnd.blog.entry/public-one',
+							cid: 'cid-1',
+							value: { title: 'Public', content: 'A', visibility: 'public' }
+						},
+						{
+							uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
+							cid: 'cid-2',
+							value: { title: 'Private', content: 'B', visibility: 'private' }
+						}
+					]
+				}) as T
 		};
 
 		const response = await listArticles(transport, identity, { limit: 10 });
@@ -110,10 +110,10 @@ describe('whitewind article helpers', () => {
 			},
 			requestJson: async <T>() =>
 				({
-				uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
-				cid: 'cid-2',
-				value: { title: 'Private', content: 'B', visibility: 'private' }
-			}) as T
+					uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
+					cid: 'cid-2',
+					value: { title: 'Private', content: 'B', visibility: 'private' }
+				}) as T
 		};
 
 		const article = await getArticle(transport, identity, { rkey: 'private-one' });
@@ -133,10 +133,10 @@ describe('whitewind article helpers', () => {
 			},
 			requestJson: async <T>() =>
 				({
-				uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
-				cid: 'cid-2',
-				value: { title: 'Private', content: 'B', visibility: 'private' }
-			}) as T
+					uri: 'at://did:plc:alice/com.whtwnd.blog.entry/private-one',
+					cid: 'cid-2',
+					value: { title: 'Private', content: 'B', visibility: 'private' }
+				}) as T
 		};
 
 		const article = await getArticle(transport, identity, {

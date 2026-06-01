@@ -1,5 +1,5 @@
 import type { Schema } from '#core/schema';
-import type { CoreTransport } from '#core/transport/create-transport';
+import type { CoreTransport } from '#core/transport/transport';
 import type { TransportRequestOptions } from '#core/transport/types';
 
 export function createJsonEndpoint<TParams, TResult>(options: {

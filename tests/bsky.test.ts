@@ -90,7 +90,8 @@ describe('bsky profile merge', () => {
 			handle: 'alice.test',
 			displayName: 'Repo Alice',
 			description: 'Repo bio',
-			avatar: 'https://pds.example.com/xrpc/com.atproto.sync.getBlob?did=did%3Aplc%3Aalice&cid=avatar-cid'
+			avatar:
+				'https://pds.example.com/xrpc/com.atproto.sync.getBlob?did=did%3Aplc%3Aalice&cid=avatar-cid'
 		});
 	});
 

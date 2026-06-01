@@ -22,7 +22,7 @@ Current scope:
 Supported provider modules:
 
 - Bluesky profile and post helpers
-- `site.standard.document` helpers
+- `site.standard.publication` and `site.standard.document` helpers
 - WhiteWind article helpers
 
 ## Install
@@ -50,9 +50,19 @@ const identity = await core.identity.resolveIdentity({
 
 const profile = await core.providers.bsky.getProfile(identity);
 
-const documents = await core.providers.standardsite.listDocuments(identity, {
+const documents = await core.providers.standardsite.document.list(identity, {
 	limit: 10
 });
+
+const firstDocument = documents.documents[0];
+
+if (firstDocument?.content) {
+	const markdown = core.providers.standardsite.content.renderMarkdown(firstDocument.content, {
+		inlineStyle: 'markdown',
+		mentionProfileBaseUrl: 'https://bsky.app/profile/'
+	});
+	console.log(markdown);
+}
 
 console.log(identity);
 console.log(profile);
@@ -70,9 +80,31 @@ import { getDidDocument } from 'atfield-core/did';
 import { listRecords } from 'atfield-core/repo';
 
 import { listPosts } from 'atfield-core/providers/bsky';
-import { listDocuments } from 'atfield-core/providers/standardsite';
+import {
+	content as standardSiteContent,
+	document as standardSiteDocument,
+	publication as standardSitePublication
+} from 'atfield-core/providers/standardsite';
 import { listArticles } from 'atfield-core/providers/whitewind';
+
+const documents = await standardSiteDocument.list(transport, identity, { limit: 10 });
+const publication = await standardSitePublication.get(transport, identity);
+
+const markdown = documents.documents[0]?.content
+	? standardSiteContent.renderMarkdown(documents.documents[0].content)
+	: undefined;
 ```
+
+`standardsite.document` outputs now include normalized shared `content` results when a document record carries vendor content. The normalized content result includes:
+
+- `vendor` (for example `offprint`, `pckt`, or `leaflet`)
+- `contentType` (the raw source NSID)
+- `blocks`
+- `warnings`
+- `skipped` (recognized-but-intentionally-unparsed containers such as unsupported Leaflet page types)
+- `fallbackText`
+
+See `docs/standardsite-content-normalization.md` for consumer guidance on handling `unsupported`, `unknown`, and `skipped` states.
 
 ## Package role
 
@@ -86,22 +118,30 @@ Install dependencies:
 bun install
 ```
 
-Run checks:
+Run the full verification suite:
 
 ```sh
-bun run check
-bun run lint
-bun test
-bun run build
+bun run verify
 ```
 
-Verify packed package consumption:
+Commits automatically format staged files through `lint-staged` and then run `bun run check` via Husky.
+
+### Release channels
+
+- Stable releases publish with the `latest` dist-tag and use normal versions like `0.1.2`.
+- Prerelease test builds publish with the `next` dist-tag and should use versions like `0.1.2-next.0`.
+- Bump the next prerelease version locally with:
 
 ```sh
-bun run verify:packed-consumer
+bun run version:next
+```
+
+- Install the prerelease channel with:
+
+```sh
+npm install atfield-core@next
 ```
 
 ## License
 
 MIT
-

@@ -1,6 +1,9 @@
+import { buildBlobUrl, getRecord } from '#core/repo';
 import { defineSchema } from '#core/schema';
 import { createJsonEndpoint, type CoreTransport } from '#core/transport';
-import type { BskyProfile } from '#core/providers/bsky/types';
+import type { ResolvedIdentity } from '#core/types';
+import type { BskyProfile } from './types';
+import { getAvatarCid, mergeProfiles, normalizeProfileRecord } from './normalization';
 
 type PublicProfileResponse = {
 	did: string;
@@ -33,6 +36,36 @@ const getAppViewProfileEndpoint = createJsonEndpoint({
 	schema: publicProfileSchema,
 	fallbackMessage: 'Failed to fetch profile from AppView'
 });
+
+export async function getProfile(
+	transport: CoreTransport,
+	identity: ResolvedIdentity,
+	options?: { appViewUrl?: string }
+) {
+	const record = await getRecord(transport, identity, {
+		collection: 'app.bsky.actor.profile',
+		rkey: 'self'
+	});
+
+	const avatarCid = getAvatarCid(record);
+	const avatarUrl = avatarCid ? buildBlobUrl(identity, avatarCid) : undefined;
+	const repoProfile = normalizeProfileRecord(record, identity, avatarUrl);
+
+	if (!options?.appViewUrl) {
+		return repoProfile;
+	}
+
+	try {
+		const appViewProfile = await getAppViewProfile(transport, {
+			actor: identity.did,
+			baseUrl: options.appViewUrl
+		});
+
+		return mergeProfiles(repoProfile, appViewProfile);
+	} catch {
+		return repoProfile;
+	}
+}
 
 export async function getAppViewProfile(
 	transport: CoreTransport,

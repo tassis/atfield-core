@@ -8,10 +8,13 @@ import { createTransport } from '#core/transport';
 import type { AtfieldCore, AtfieldCoreProvidersClient, CoreServicesConfig } from '#core/core.types';
 import type { FetchLike } from '#core/types';
 
-export function createCore(options: {
-	fetch?: FetchLike;
-	services?: CoreServicesConfig;
-} = {}): AtfieldCore {
+export function createCore(
+	options: {
+		// Allow callers to inject fetch for custom runtimes, wrappers, and tests.
+		fetch?: FetchLike;
+		services?: CoreServicesConfig;
+	} = {}
+): AtfieldCore {
 	const transport = createTransport(options.fetch ?? globalThis.fetch);
 	const services = {
 		handleResolverUrl: options.services?.handleResolverUrl ?? DEFAULT_HANDLE_RESOLVER_URL,

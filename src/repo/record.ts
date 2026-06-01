@@ -62,4 +62,4 @@ function isRepoRecord(input: unknown): input is RepoGetRecordResponse {
 		typeof record.value === 'object' &&
 		record.value !== null
 	);
-	}
+}

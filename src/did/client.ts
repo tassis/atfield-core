@@ -1,4 +1,4 @@
-import { getDidDocument, getDidDocumentUrl } from '#core/did/get-did-document';
+import { getDidDocument, getDidDocumentUrl } from '#core/did/document';
 import { getHandleFromDidDocument, getPdsUrlFromDidDocument } from '#core/did/parse-did-document';
 import type { CoreTransport } from '#core/transport';
 import type { DidDocument } from '#core/types';

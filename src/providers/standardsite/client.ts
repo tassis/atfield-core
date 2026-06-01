@@ -1,53 +1,84 @@
 import type { CoreTransport } from '#core/transport';
 import type { ResolvedIdentity } from '#core/types';
-import { getDocument, STANDARDSITE_DOCUMENT_COLLECTION } from '#core/providers/standardsite/get-document';
+import { getDocument, listDocuments, STANDARDSITE_DOCUMENT_COLLECTION } from './document';
+import { getPublication, STANDARDSITE_PUBLICATION_COLLECTION } from './publication';
 import {
-	getPublication,
-	STANDARDSITE_PUBLICATION_COLLECTION
-} from '#core/providers/standardsite/get-publication';
-import { listDocuments } from '#core/providers/standardsite/list-documents';
-import { normalizeDocument, normalizePublication } from '#core/providers/standardsite/normalize';
+	api as contentApi,
+	type MarkdownOptions as ContentMarkdownOptions,
+	type Options as ContentOptions,
+	type Result as ContentResult
+} from './content';
+import { normalizeDocument, normalizePublication } from './normalization';
 import {
 	getStandardSiteBlobCid,
 	parseStandardSiteDocumentRecord,
 	parseStandardSitePublicationRecord
-} from '#core/providers/standardsite/types';
+} from './types';
+
+// After transport and identity are bound, the client only forwards getPublication params.
+type StandardSiteGetPublicationParams = Parameters<typeof getPublication>[2];
+
+// After transport and identity are bound, the client only forwards getDocument params.
+type StandardSiteGetDocumentParams = Parameters<typeof getDocument>[2];
+
+// After transport and identity are bound, the client only forwards listDocuments params.
+type StandardSiteListDocumentsOptions = Parameters<typeof listDocuments>[2];
 
 export type AtfieldCoreStandardSiteProviderClient = {
-	getPublication: (
-		identity: ResolvedIdentity,
-		params?: Parameters<typeof getPublication>[2]
-	) => ReturnType<typeof getPublication>;
-	getDocument: (
-		identity: ResolvedIdentity,
-		params: Parameters<typeof getDocument>[2]
-	) => ReturnType<typeof getDocument>;
-	listDocuments: (
-		identity: ResolvedIdentity,
-		options: Parameters<typeof listDocuments>[2]
-	) => ReturnType<typeof listDocuments>;
-	normalizePublication: typeof normalizePublication;
-	normalizeDocument: typeof normalizeDocument;
-	parsePublicationRecord: typeof parseStandardSitePublicationRecord;
-	parseDocumentRecord: typeof parseStandardSiteDocumentRecord;
-	getBlobCid: typeof getStandardSiteBlobCid;
-	STANDARDSITE_PUBLICATION_COLLECTION: typeof STANDARDSITE_PUBLICATION_COLLECTION;
-	STANDARDSITE_DOCUMENT_COLLECTION: typeof STANDARDSITE_DOCUMENT_COLLECTION;
+	blob: {
+		getCid: typeof getStandardSiteBlobCid;
+	};
+	content: {
+		normalize: (content: unknown, options?: ContentOptions) => ContentResult;
+		renderMarkdown: (
+			content: ContentResult | ContentResult['blocks'],
+			options?: ContentMarkdownOptions
+		) => string;
+	};
+	document: {
+		get: (
+			identity: ResolvedIdentity,
+			params: StandardSiteGetDocumentParams
+		) => ReturnType<typeof getDocument>;
+		list: (
+			identity: ResolvedIdentity,
+			options: StandardSiteListDocumentsOptions
+		) => ReturnType<typeof listDocuments>;
+		normalize: typeof normalizeDocument;
+		parse: typeof parseStandardSiteDocumentRecord;
+		COLLECTION: typeof STANDARDSITE_DOCUMENT_COLLECTION;
+	};
+	publication: {
+		get: (
+			identity: ResolvedIdentity,
+			params?: StandardSiteGetPublicationParams
+		) => ReturnType<typeof getPublication>;
+		normalize: typeof normalizePublication;
+		parse: typeof parseStandardSitePublicationRecord;
+		COLLECTION: typeof STANDARDSITE_PUBLICATION_COLLECTION;
+	};
 };
 
 export function buildStandardSiteProviderClient(
 	transport: CoreTransport
 ): AtfieldCoreStandardSiteProviderClient {
 	return {
-		getPublication: (identity, params) => getPublication(transport, identity, params),
-		getDocument: (identity, params) => getDocument(transport, identity, params),
-		listDocuments: (identity, options) => listDocuments(transport, identity, options),
-		normalizePublication,
-		normalizeDocument,
-		parsePublicationRecord: parseStandardSitePublicationRecord,
-		parseDocumentRecord: parseStandardSiteDocumentRecord,
-		getBlobCid: getStandardSiteBlobCid,
-		STANDARDSITE_PUBLICATION_COLLECTION,
-		STANDARDSITE_DOCUMENT_COLLECTION
+		blob: {
+			getCid: getStandardSiteBlobCid
+		},
+		content: contentApi,
+		document: {
+			get: (identity, params) => getDocument(transport, identity, params),
+			list: (identity, options) => listDocuments(transport, identity, options),
+			normalize: normalizeDocument,
+			parse: parseStandardSiteDocumentRecord,
+			COLLECTION: STANDARDSITE_DOCUMENT_COLLECTION
+		},
+		publication: {
+			get: (identity, params) => getPublication(transport, identity, params),
+			normalize: normalizePublication,
+			parse: parseStandardSitePublicationRecord,
+			COLLECTION: STANDARDSITE_PUBLICATION_COLLECTION
+		}
 	};
 }

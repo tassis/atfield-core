@@ -1,9 +1,14 @@
-import { createCore, defineSchema, getDidDocumentUrl, getHandleFromDidDocument } from 'atfield-core';
+import {
+	createCore,
+	defineSchema,
+	getDidDocumentUrl,
+	getHandleFromDidDocument
+} from 'atfield-core';
 import type { IdentityInput } from 'atfield-core';
 import { getPdsUrlFromDidDocument } from 'atfield-core/did';
 import { resolveIdentity } from 'atfield-core/identity';
 import { getProfile } from 'atfield-core/providers/bsky';
-import { getPublication } from 'atfield-core/providers/standardsite';
+import { publication as standardSitePublication } from 'atfield-core/providers/standardsite';
 import { listArticles } from 'atfield-core/providers/whitewind';
 import { listRecords } from 'atfield-core/repo';
 
@@ -12,7 +17,7 @@ const identityInput: IdentityInput = { did: 'did:plc:alice' };
 void resolveIdentity;
 void listRecords;
 void getProfile;
-void getPublication;
+void standardSitePublication;
 void listArticles;
 void identityInput;
 
@@ -68,7 +73,7 @@ if (typeof core.providers.bsky.getProfile !== 'function') {
 	throw new Error('Bsky provider client is not available');
 }
 
-if (typeof core.providers.standardsite.getPublication !== 'function') {
+if (typeof core.providers.standardsite.publication.get !== 'function') {
 	throw new Error('Standard Site provider client is not available');
 }
 
