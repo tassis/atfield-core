@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       npm_tag:
-        description: npm dist-tag to publish with
+        description: npm dist-tag to publish with (`latest` for stable releases, `next` for x.y.z-next.n prereleases)
         required: false
-        default: latest
+        default: next
         type: string
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 jobs:
   publish:
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -48,7 +48,7 @@ jobs:
           fi
 
       - name: Run verification suite
-        run: bun test && bun run check && bun run lint && bun run build && bun run verify:packed-consumer
+        run: bun run verify
 
       - name: Publish to npm
         env:

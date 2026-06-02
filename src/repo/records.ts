@@ -1,7 +1,7 @@
 import { defineSchema } from '#core/schema';
 import { createJsonEndpoint, type CoreTransport } from '#core/transport';
 import type { ResolvedIdentity } from '#core/types';
-import type { RepoRecord } from '#core/repo/get-record';
+import type { RepoRecord } from '#core/repo/record';
 
 export type RepoListRecordsResponse = {
 	cursor?: string;
@@ -85,4 +85,4 @@ function isRepoRecord(input: unknown): input is RepoRecord {
 		typeof record.value === 'object' &&
 		record.value !== null
 	);
-	}
+}

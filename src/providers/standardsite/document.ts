@@ -1,8 +1,22 @@
 import { listRecords } from '#core/repo';
 import type { CoreTransport } from '#core/transport';
 import type { ResolvedIdentity } from '#core/types';
-import { STANDARDSITE_DOCUMENT_COLLECTION } from '#core/providers/standardsite/get-document';
-import { normalizeDocument } from '#core/providers/standardsite/normalize';
+import { normalizeDocument } from './normalization';
+import { readStandardSiteRecord } from './record';
+
+export const STANDARDSITE_DOCUMENT_COLLECTION = 'site.standard.document';
+
+export async function getDocument(
+	transport: CoreTransport,
+	identity: ResolvedIdentity,
+	params: { rkey: string }
+) {
+	return readStandardSiteRecord(transport, identity, {
+		collection: STANDARDSITE_DOCUMENT_COLLECTION,
+		rkey: params.rkey,
+		normalize: normalizeDocument
+	});
+}
 
 export async function listDocuments(
 	transport: CoreTransport,

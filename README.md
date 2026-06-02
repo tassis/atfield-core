@@ -6,6 +6,12 @@ It contains reusable identity, DID, repository, transport, schema, and provider 
 
 For a deployable SvelteKit endpoint provider built on top of this package, see [`atfield-kit`](https://github.com/tassis/atfield-kit).
 
+## Install
+
+```sh
+npm install atfield-core
+```
+
 ## What it provides
 
 Current scope:
@@ -22,22 +28,10 @@ Current scope:
 Supported provider modules:
 
 - Bluesky profile and post helpers
-- `site.standard.document` helpers
+- `site.standard.publication` and `site.standard.document` helpers
 - WhiteWind article helpers
 
-## Install
-
-```sh
-bun add atfield-core
-```
-
-Or with npm:
-
-```sh
-npm install atfield-core
-```
-
-## Basic usage
+## Quick example
 
 ```ts
 import { createCore } from 'atfield-core';
@@ -50,58 +44,36 @@ const identity = await core.identity.resolveIdentity({
 
 const profile = await core.providers.bsky.getProfile(identity);
 
-const documents = await core.providers.standardsite.listDocuments(identity, {
+const documents = await core.providers.standardsite.document.list(identity, {
 	limit: 10
 });
 
+const firstDocument = documents.documents[0];
+
+if (firstDocument?.content) {
+	const markdown = core.providers.standardsite.content.renderMarkdown(firstDocument.content, {
+		inlineStyle: 'markdown',
+		mentionProfileBaseUrl: 'https://bsky.app/profile/'
+	});
+	console.log(markdown);
+}
+
 console.log(identity);
 console.log(profile);
-console.log(documents);
+console.log(documents.documents[0]);
 ```
 
-## Subpath imports
+## Documentation
 
-`atfield-core` exposes subpath entrypoints for applications that only need part of the package:
-
-```ts
-import { createTransport } from 'atfield-core/transport';
-import { resolveIdentity } from 'atfield-core/identity';
-import { getDidDocument } from 'atfield-core/did';
-import { listRecords } from 'atfield-core/repo';
-
-import { listPosts } from 'atfield-core/providers/bsky';
-import { listDocuments } from 'atfield-core/providers/standardsite';
-import { listArticles } from 'atfield-core/providers/whitewind';
-```
+- [Getting started](./docs/getting-started.md)
+- [Provider overview](./docs/providers.md)
+- [Standard Site content normalization](./docs/standardsite-content-normalization.md)
+- [Development and releases](./docs/development.md)
 
 ## Package role
 
 `atfield-core` intentionally does not provide a web server, UI, admin console, CMS, editor, RSS generator, sitemap generator, or publishing frontend.
 
-## Development
-
-Install dependencies:
-
-```sh
-bun install
-```
-
-Run checks:
-
-```sh
-bun run check
-bun run lint
-bun test
-bun run build
-```
-
-Verify packed package consumption:
-
-```sh
-bun run verify:packed-consumer
-```
-
 ## License
 
 MIT
-

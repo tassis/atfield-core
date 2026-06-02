@@ -1,29 +1,31 @@
 import type { CoreServicesConfig } from '#core/core.types';
 import type { CoreTransport } from '#core/transport';
 import type { ResolvedIdentity } from '#core/types';
-import { getAppViewProfile } from '#core/providers/bsky/get-appview-profile';
-import { getPost } from '#core/providers/bsky/get-post';
-import { getProfile } from '#core/providers/bsky/get-profile';
-import { listPosts } from '#core/providers/bsky/list-posts';
+import { getAppViewProfile, getProfile } from './profile';
+import { getPost, listPosts } from './post';
 import {
 	getAvatarCid,
 	mergeProfiles,
 	normalizePostRecord,
 	normalizeProfileRecord
-} from '#core/providers/bsky/normalize';
+} from './normalization';
+
+// After transport and identity are bound, the client only forwards getPost params.
+type BskyGetPostParams = Parameters<typeof getPost>[2];
+
+// After transport is bound, the client only forwards getAppViewProfile params.
+type BskyGetAppViewProfileParams = Parameters<typeof getAppViewProfile>[1];
+
+// After transport and identity are bound, the client only forwards listPosts params.
+type BskyListPostsOptions = Parameters<typeof listPosts>[2];
 
 export type AtfieldCoreBskyProviderClient = {
-	getPost: (
-		identity: ResolvedIdentity,
-		params: Parameters<typeof getPost>[2]
-	) => ReturnType<typeof getPost>;
+	getPost: (identity: ResolvedIdentity, params: BskyGetPostParams) => ReturnType<typeof getPost>;
 	getProfile: (identity: ResolvedIdentity) => ReturnType<typeof getProfile>;
-	getAppViewProfile: (
-		params: Parameters<typeof getAppViewProfile>[1]
-	) => ReturnType<typeof getAppViewProfile>;
+	getAppViewProfile: (params: BskyGetAppViewProfileParams) => ReturnType<typeof getAppViewProfile>;
 	listPosts: (
 		identity: ResolvedIdentity,
-		options: Parameters<typeof listPosts>[2]
+		options: BskyListPostsOptions
 	) => ReturnType<typeof listPosts>;
 	getAvatarCid: typeof getAvatarCid;
 	mergeProfiles: typeof mergeProfiles;

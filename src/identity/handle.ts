@@ -23,7 +23,10 @@ const resolveHandleSchema = defineSchema<ResolveHandleResponse>({
 
 const resolveHandleEndpoint = createJsonEndpoint({
 	buildRequest(params: { handle: string; baseUrl?: string }) {
-		const url = new URL('com.atproto.identity.resolveHandle', `${params.baseUrl ?? DEFAULT_HANDLE_RESOLVER_URL}/`);
+		const url = new URL(
+			'com.atproto.identity.resolveHandle',
+			`${params.baseUrl ?? DEFAULT_HANDLE_RESOLVER_URL}/`
+		);
 		url.searchParams.set('handle', params.handle);
 
 		return { url };

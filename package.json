@@ -1,11 +1,11 @@
 {
 	"name": "atfield-core",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"type": "module",
 	"repository": {
-    "type": "git",
-    "url": "https://github.com/tassis/atfield-core"
-  },
+		"type": "git",
+		"url": "https://github.com/tassis/atfield-core"
+	},
 	"imports": {
 		"#core/core": "./src/core.ts",
 		"#core/core.types": "./src/core.types.ts",
@@ -63,7 +63,9 @@
 			"default": "./dist/providers/whitewind.js"
 		}
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/"
@@ -73,8 +75,14 @@
 		"check": "tsc --noEmit -p tsconfig.json",
 		"lint": "eslint .",
 		"format": "prettier --write .",
+		"prepare": "husky",
 		"test": "bun test",
+		"version:next": "bun run ./scripts/version-next.mjs",
+		"verify": "bun test && bun run check && bun run lint && bun run build && bun run verify:packed-consumer",
 		"verify:packed-consumer": "bun run ./scripts/verify-packed-consumer.mjs"
+	},
+	"lint-staged": {
+		"*.{cjs,cts,js,json,jsonc,jsx,mjs,mts,md,ts,tsx,yaml,yml}": "prettier --write"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.4",
@@ -83,6 +91,8 @@
 		"eslint": "^10.2.0",
 		"eslint-config-prettier": "^10.1.8",
 		"globals": "^17.4.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.0.7",
 		"prettier": "^3.8.1",
 		"tsup": "^8.5.1",
 		"typescript": "^6.0.2",

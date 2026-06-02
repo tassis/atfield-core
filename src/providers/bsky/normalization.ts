@@ -1,6 +1,6 @@
 import type { RepoRecord } from '#core/repo';
 import type { ResolvedIdentity } from '#core/types';
-import type { BskyPost, BskyProfile } from '#core/providers/bsky/types';
+import type { BskyPost, BskyProfile } from './types';
 
 type RepoProfileRecord = {
 	displayName?: string;

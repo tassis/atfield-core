@@ -4,7 +4,7 @@ import {
 	parseWhitewindArticleRecord,
 	type WhitewindArticle,
 	type WhitewindArticleRecord
-} from '#core/providers/whitewind/types';
+} from './types';
 
 export function normalizeArticle(record: RepoRecord, identity: ResolvedIdentity): WhitewindArticle {
 	const value: WhitewindArticleRecord = parseWhitewindArticleRecord(record.value);
