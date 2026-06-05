@@ -3,11 +3,18 @@ import type { ResolvedIdentity } from '#core/types';
 import { getDocument, listDocuments, STANDARDSITE_DOCUMENT_COLLECTION } from './document';
 import { getPublication, STANDARDSITE_PUBLICATION_COLLECTION } from './publication';
 import {
-	api as contentApi,
-	type MarkdownOptions as ContentMarkdownOptions,
-	type Options as ContentOptions,
-	type Result as ContentResult
+	content as contentApi,
+	type ContentBundle,
+	type ContentNormalizerConfig,
+	type ContentNormalizer,
+	type ContentResult,
+	type Options as ContentOptions
 } from './content';
+import {
+	markdown as markdownApi,
+	type MarkdownRenderOptions,
+	type MarkdownRenderer
+} from './content/markdown';
 import { normalizeDocument, normalizePublication } from './normalization';
 import {
 	getStandardSiteBlobCid,
@@ -30,10 +37,19 @@ export type AtfieldCoreStandardSiteProviderClient = {
 	};
 	content: {
 		normalize: (content: unknown, options?: ContentOptions) => ContentResult;
-		renderMarkdown: (
+		createNormalizer: (config: ContentNormalizerConfig) => ContentNormalizer;
+		offprintBundle: ContentBundle;
+		pcktBundle: ContentBundle;
+		leafletBundle: ContentBundle;
+	};
+	markdown: {
+		render: (
 			content: ContentResult | ContentResult['blocks'],
-			options?: ContentMarkdownOptions
+			options?: MarkdownRenderOptions
 		) => string;
+		createRenderer: (
+			registry?: Parameters<typeof markdownApi.createRenderer>[0]
+		) => MarkdownRenderer;
 	};
 	document: {
 		get: (
@@ -59,14 +75,13 @@ export type AtfieldCoreStandardSiteProviderClient = {
 	};
 };
 
-export function buildStandardSiteProviderClient(
-	transport: CoreTransport
-): AtfieldCoreStandardSiteProviderClient {
+export function buildClient(transport: CoreTransport): AtfieldCoreStandardSiteProviderClient {
 	return {
 		blob: {
 			getCid: getStandardSiteBlobCid
 		},
 		content: contentApi,
+		markdown: markdownApi,
 		document: {
 			get: (identity, params) => getDocument(transport, identity, params),
 			list: (identity, options) => listDocuments(transport, identity, options),

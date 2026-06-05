@@ -1,6 +1,15 @@
 import { addMark, joinRichText, normalizeRichText } from '../rich-text';
 import type { RichTextFeatureHandler } from '../rich-text';
-import type { Image, ItemNormalizers, ListItem, TableCell, TableRow, Warning } from '../types';
+import type {
+	BlockNormalizerRegistry,
+	ContentBlockSemanticHandlerRegistry,
+	ContentTypeDefinition,
+	Image,
+	ListItem,
+	TableCell,
+	TableRow,
+	Warning
+} from '../types';
 
 const pcktRichTextFeatureHandlers: Record<string, RichTextFeatureHandler> = {
 	'blog.pckt.richtext.facet#bold': (_feature, span) => addMark(span, 'bold'),
@@ -26,7 +35,12 @@ const pcktRichTextFeatureHandlers: Record<string, RichTextFeatureHandler> = {
 	}
 };
 
-export const pcktBlockNormalizers: ItemNormalizers = {
+export const pcktContentTypeDefinition: ContentTypeDefinition = {
+	vendor: 'pckt',
+	extractBlocks: extractItemsBlocks
+};
+
+export const pcktBlockNormalizers: BlockNormalizerRegistry = {
 	'blog.pckt.block.heading': (input, context) => {
 		const richText = normalizePcktRichText(input, context.path, context.warn);
 		return {
@@ -100,6 +114,180 @@ export const pcktBlockNormalizers: ItemNormalizers = {
 		type: 'table',
 		rows: normalizeTableRows(input.content)
 	})
+};
+
+export const pcktSemanticHandlers: ContentBlockSemanticHandlerRegistry = {
+	'blog.pckt.block.heading': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.heading'](input, context);
+		if (normalized.type !== 'heading') {
+			return undefined;
+		}
+
+		return {
+			type: 'heading',
+			value: { level: normalized.level, text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'blog.pckt.block.text': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.text'](input, context);
+		if (normalized.type !== 'paragraph') {
+			return undefined;
+		}
+
+		return {
+			type: 'paragraph',
+			value: { text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'blog.pckt.block.blockquote': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.blockquote'](input, context);
+		if (normalized.type !== 'blockquote') {
+			return undefined;
+		}
+
+		return {
+			type: 'blockquote',
+			value: { text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'blog.pckt.block.bulletList': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.bulletList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: {
+				style: normalized.style,
+				start: getNumber(getRecord(input.attrs)?.start) ?? getNumber(input.startIndex),
+				items: normalized.items
+			}
+		};
+	},
+	'blog.pckt.block.orderedList': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.orderedList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: {
+				style: normalized.style,
+				start: getNumber(getRecord(input.attrs)?.start) ?? getNumber(input.startIndex),
+				items: normalized.items
+			}
+		};
+	},
+	'blog.pckt.block.taskList': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.taskList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: {
+				style: normalized.style,
+				start: getNumber(getRecord(input.attrs)?.start) ?? getNumber(input.startIndex),
+				items: normalized.items
+			}
+		};
+	},
+	'blog.pckt.block.codeBlock': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.codeBlock'](input, context);
+		if (normalized.type !== 'code') {
+			return undefined;
+		}
+
+		return {
+			type: 'code',
+			value: { code: normalized.code, language: normalized.language }
+		};
+	},
+	'blog.pckt.block.horizontalRule': () => ({ type: 'divider', value: {} }),
+	'blog.pckt.block.image': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.image'](input, context);
+		if (normalized.type !== 'image' || normalized.layout !== 'single') {
+			return undefined;
+		}
+
+		return {
+			type: 'image',
+			value: {
+				image: normalized.images[0] ?? {},
+				placeholder: getString(getRecord(input.attrs)?.placeholder)
+			}
+		};
+	},
+	'blog.pckt.block.website': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.website'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'link') {
+			return undefined;
+		}
+
+		return {
+			type: 'rich-link-like',
+			value: {
+				url: normalized.url,
+				title: normalized.title,
+				description: getString(input.description),
+				siteName: getString(input.siteName),
+				previewImage: normalizePreviewImage(input)
+			}
+		};
+	},
+	'blog.pckt.block.iframe': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.iframe'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'link') {
+			return undefined;
+		}
+
+		return {
+			type: 'iframe-like',
+			value: {
+				url: normalized.url,
+				title: normalized.title,
+				description: getString(input.description),
+				aspectRatio: getString(getRecord(input.attrs)?.aspectRatio) ?? getString(input.aspectRatio)
+			}
+		};
+	},
+	'blog.pckt.block.gallery': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.gallery'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'gallery') {
+			return undefined;
+		}
+
+		const items = Array.isArray(input.images)
+			? input.images.flatMap((entry) => {
+					const item = getRecord(entry);
+					return item ? [normalizeImageFromAttrs(getRecord(item.attrs))] : [];
+				})
+			: undefined;
+
+		return {
+			type: 'gallery-like',
+			value: { items, ref: normalized.url, layout: 'gallery' }
+		};
+	},
+	'blog.pckt.block.blueskyEmbed': (input, context) => {
+		const normalized = pcktBlockNormalizers['blog.pckt.block.blueskyEmbed'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'bluesky-post') {
+			return undefined;
+		}
+
+		const postRef = getRecord(input.postRef);
+		return {
+			type: 'bluesky-post-like',
+			value: {
+				uri: getString(postRef?.uri),
+				cid: getString(postRef?.cid),
+				clientHost: getString(input.clientHost)
+			}
+		};
+	}
 };
 
 function normalizeListItems(
@@ -212,7 +400,9 @@ function normalizeListItemContentBlocks(
 		}
 
 		const normalized = normalizer(block, { path: blockPath, warn });
-		return normalized.type === 'list' ? [] : [normalized];
+		return normalized.type === 'list'
+			? []
+			: [normalized.rawType === undefined ? { ...normalized, rawType: blockType } : normalized];
 	});
 
 	return blocks.length ? blocks : undefined;
@@ -271,6 +461,24 @@ function normalizeImageFromAttrs(attrs: Record<string, unknown> | undefined): Im
 	};
 }
 
+function extractItemsBlocks(
+	content: Record<string, unknown>,
+	warn: (warning: Warning) => void
+): { blocks: Array<{ input: unknown; path: string }> } {
+	if (!Array.isArray(content.items)) {
+		warn({
+			code: 'invalid_items',
+			message: 'Expected standard.site content items array',
+			path: 'content.items'
+		});
+		return { blocks: [] };
+	}
+
+	return {
+		blocks: content.items.map((input, index) => ({ input, path: `content.items[${index}]` }))
+	};
+}
+
 function normalizeTableRows(input: unknown): TableRow[] {
 	if (!Array.isArray(input)) {
 		return [];
@@ -289,12 +497,13 @@ function normalizeTableCells(input: unknown): TableCell[] {
 	return input.map((entry) => {
 		const cell = getRecord(entry);
 		const cellType = getString(cell?.$type);
+		const attrs = getRecord(cell?.attrs);
 
 		return {
 			text: joinPlaintextBlocks(cell?.content),
 			header: cellType === 'blog.pckt.block.tableHeader',
-			colspan: getNumber(cell?.colspan),
-			rowspan: getNumber(cell?.rowspan)
+			colspan: getNumber(attrs?.colspan) ?? getNumber(cell?.colspan),
+			rowspan: getNumber(attrs?.rowspan) ?? getNumber(cell?.rowspan)
 		};
 	});
 }
@@ -334,4 +543,22 @@ function getRecord(input: unknown): Record<string, unknown> | undefined {
 	return typeof input === 'object' && input !== null && !Array.isArray(input)
 		? (input as Record<string, unknown>)
 		: undefined;
+}
+
+function normalizePreviewImage(source: Record<string, unknown>) {
+	const preview = getRecord(source.preview) ?? getRecord(source.previewImage);
+	if (!preview) {
+		return undefined;
+	}
+
+	return {
+		cid: getStringFromRecord(preview.ref, '$link'),
+		src: getString(preview.url),
+		mimeType: getString(preview.mimeType),
+		width: getNumber(preview.width),
+		height: getNumber(preview.height),
+		alt: getString(preview.alt),
+		title: getString(preview.title),
+		align: getAlign(preview.align)
+	};
 }

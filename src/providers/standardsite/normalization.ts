@@ -1,7 +1,7 @@
 import { buildBlobUrl, type RepoRecord } from '#core/repo';
 import type { ResolvedIdentity } from '#core/types';
 import { normalizeContent } from './content';
-import type { Block, Image, ListItem, ListItemBlock, Result as ContentResult } from './content';
+import type { ContentBlock, ContentResult, Image, ListItem, ListItemBlock } from './content';
 import {
 	getStandardSiteBlobCid,
 	parseStandardSiteDocumentRecord,
@@ -52,6 +52,7 @@ export function normalizeDocument(
 		cid: record.cid,
 		title: value.title,
 		site: value.site,
+		contentVendor: getContentVendor(content?.contentType),
 		publishedAt: value.publishedAt,
 		path: value.path,
 		description: value.description,
@@ -73,6 +74,22 @@ export function normalizeDocument(
 	};
 }
 
+function getContentVendor(contentType: string | undefined) {
+	if (contentType === 'app.offprint.content') {
+		return 'offprint';
+	}
+
+	if (contentType === 'blog.pckt.content') {
+		return 'pckt';
+	}
+
+	if (contentType === 'pub.leaflet.content') {
+		return 'leaflet';
+	}
+
+	return undefined;
+}
+
 function resolveContentImageUrls(
 	content: ContentResult,
 	identity: ResolvedIdentity
@@ -83,15 +100,38 @@ function resolveContentImageUrls(
 	};
 }
 
-function resolveBlockImageUrls(block: Block, identity: ResolvedIdentity): Block {
-	if (block.type === 'list') {
+function resolveBlockImageUrls(block: ContentBlock, identity: ResolvedIdentity): ContentBlock {
+	if (block.semantic?.type === 'image') {
 		return {
 			...block,
-			items: block.items.map((item) => resolveListItemImageUrls(item, identity))
+			semantic: {
+				...block.semantic,
+				value: resolveImageSemanticValue(block.semantic.value, identity)
+			}
 		};
 	}
 
-	return resolveListItemBlockImageUrls(block, identity);
+	if (block.semantic?.type === 'gallery-like') {
+		return {
+			...block,
+			semantic: {
+				...block.semantic,
+				value: resolveGallerySemanticValue(block.semantic.value, identity)
+			}
+		};
+	}
+
+	if (block.semantic?.type === 'list') {
+		return {
+			...block,
+			semantic: {
+				...block.semantic,
+				value: resolveListSemanticValue(block.semantic.value, identity)
+			}
+		};
+	}
+
+	return block;
 }
 
 function resolveListItemImageUrls(item: ListItem, identity: ResolvedIdentity): ListItem {
@@ -125,4 +165,47 @@ function resolveImageUrl(image: Image, identity: ResolvedIdentity): Image {
 		...image,
 		src: buildBlobUrl(identity, image.cid)
 	};
+}
+
+function resolveListSemanticValue(value: unknown, identity: ResolvedIdentity) {
+	const list = asRecord(value);
+	if (!Array.isArray(list?.items)) {
+		return value;
+	}
+
+	return {
+		...list,
+		items: list.items.map((item) => resolveListItemImageUrls(item as ListItem, identity))
+	};
+}
+
+function resolveImageSemanticValue(value: unknown, identity: ResolvedIdentity) {
+	const imageValue = asRecord(value);
+	const image = asRecord(imageValue?.image);
+	if (!image) {
+		return value;
+	}
+
+	return {
+		...imageValue,
+		image: resolveImageUrl(image as Image, identity)
+	};
+}
+
+function resolveGallerySemanticValue(value: unknown, identity: ResolvedIdentity) {
+	const gallery = asRecord(value);
+	if (!Array.isArray(gallery?.items)) {
+		return value;
+	}
+
+	return {
+		...gallery,
+		items: gallery.items.map((image) => resolveImageUrl(image as Image, identity))
+	};
+}
+
+function asRecord(input: unknown): Record<string, unknown> | undefined {
+	return typeof input === 'object' && input !== null && !Array.isArray(input)
+		? (input as Record<string, unknown>)
+		: undefined;
 }

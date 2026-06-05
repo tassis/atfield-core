@@ -1,28 +1,55 @@
-import { normalizeContent } from './normalization';
-import { renderMarkdown } from './markdown';
+import { createContentNormalizer, normalizeContent } from './normalization';
+import { createMarkdownRenderer, markdown, renderMarkdown } from './markdown';
+import { leafletBundle, offprintBundle, pcktBundle } from './registry';
 
-export { normalizeContent, renderMarkdown };
-export type { MarkdownOptions } from './markdown';
+export {
+	createContentNormalizer,
+	createMarkdownRenderer,
+	markdown,
+	normalizeContent,
+	renderMarkdown,
+	leafletBundle,
+	offprintBundle,
+	pcktBundle
+};
+
 export type {
-	Block,
-	ExtractedBlock,
+	MarkdownBlockKind,
+	MarkdownBlockRenderer,
+	MarkdownRenderOptions,
+	MarkdownRenderContext,
+	MarkdownRenderer,
+	MarkdownRendererRegistry
+} from './markdown';
+
+export type {
+	ContentBlock,
+	ContentBlockSemanticHandler,
+	ContentBlockSemanticHandlerRegistry,
+	ContentResult,
+	SemanticType,
+	BlockNormalizeContext,
+	ContentBundle,
+	ContentNormalizerConfig,
+	ContentNormalizer,
+	ContentTypeDefinition,
+	ContentTypeRegistry,
+	ImageSemanticValue,
 	Image,
-	ItemNormalizeContext,
-	ItemNormalizer,
-	ItemNormalizers,
 	ListItem,
 	ListItemBlock,
 	Options,
 	RichText,
 	RichTextMark,
 	RichTextSpan,
-	Result,
 	Skipped,
-	Vendor,
 	Warning
 } from './types';
 
-export const api = {
+export const content = {
 	normalize: normalizeContent,
-	renderMarkdown
+	createNormalizer: createContentNormalizer,
+	offprintBundle,
+	pcktBundle,
+	leafletBundle
 };

@@ -1,4 +1,4 @@
-import type { Result as StandardSiteContentResult } from './content';
+import type { ContentResult } from './content';
 
 type StandardSiteBlob = {
 	ref?: {
@@ -73,12 +73,13 @@ export type StandardSiteDocument = {
 	cid: string;
 	title: string;
 	site: string;
+	contentVendor?: string;
 	publishedAt: string;
 	path?: string;
 	description?: string;
 	tags?: string[];
 	textContent?: string;
-	content?: StandardSiteContentResult;
+	content?: ContentResult;
 	updatedAt?: string;
 	coverImage?: string;
 	bskyPostUri?: string;

@@ -1,6 +1,13 @@
 import { addMark, normalizeRichText } from '../rich-text';
 import type { RichTextFeatureHandler } from '../rich-text';
-import type { Image, ItemNormalizers, ListItem, Warning } from '../types';
+import type {
+	ContentBlockSemanticHandlerRegistry,
+	BlockNormalizerRegistry,
+	ContentTypeDefinition,
+	Image,
+	ListItem,
+	Warning
+} from '../types';
 
 const offprintRichTextFeatureHandlers: Record<string, RichTextFeatureHandler> = {
 	'app.offprint.richtext.facet#bold': (_feature, span) => addMark(span, 'bold'),
@@ -23,7 +30,201 @@ const offprintRichTextFeatureHandlers: Record<string, RichTextFeatureHandler> = 
 	}
 };
 
+export const offprintContentTypeDefinition: ContentTypeDefinition = {
+	vendor: 'offprint',
+	extractBlocks: extractItemsBlocks
+};
+
 export const offprintBlockNormalizers = buildOffprintBlockNormalizers();
+
+export const offprintSemanticHandlers: ContentBlockSemanticHandlerRegistry = {
+	'app.offprint.block.heading': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.heading'](input, context);
+		if (normalized.type !== 'heading') {
+			return undefined;
+		}
+
+		return {
+			type: 'heading',
+			value: { level: normalized.level, text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'app.offprint.block.text': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.text'](input, context);
+		if (normalized.type !== 'paragraph') {
+			return undefined;
+		}
+
+		return {
+			type: 'paragraph',
+			value: { text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'app.offprint.block.blockquote': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.blockquote'](input, context);
+		if (normalized.type !== 'blockquote') {
+			return undefined;
+		}
+
+		return {
+			type: 'blockquote',
+			value: { text: normalized.text, richText: normalized.richText }
+		};
+	},
+	'app.offprint.block.bulletList': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.bulletList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: { style: normalized.style, items: normalized.items }
+		};
+	},
+	'app.offprint.block.orderedList': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.orderedList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: { style: normalized.style, items: normalized.items }
+		};
+	},
+	'app.offprint.block.taskList': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.taskList'](input, context);
+		if (normalized.type !== 'list') {
+			return undefined;
+		}
+
+		return {
+			type: 'list',
+			value: { style: normalized.style, items: normalized.items }
+		};
+	},
+	'app.offprint.block.codeBlock': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.codeBlock'](input, context);
+		if (normalized.type !== 'code') {
+			return undefined;
+		}
+
+		return {
+			type: 'code',
+			value: { code: normalized.code, language: normalized.language }
+		};
+	},
+	'app.offprint.block.mathBlock': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.mathBlock'](input, context);
+		if (normalized.type !== 'math') {
+			return undefined;
+		}
+
+		return {
+			type: 'math',
+			value: { tex: normalized.tex }
+		};
+	},
+	'app.offprint.block.horizontalRule': () => ({ type: 'divider', value: {} }),
+	'app.offprint.block.image': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.image'](input, context);
+		if (normalized.type !== 'image' || normalized.layout !== 'single') {
+			return undefined;
+		}
+
+		return {
+			type: 'image',
+			value: { image: normalized.images[0] ?? {} }
+		};
+	},
+	'app.offprint.block.imageGrid': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.imageGrid'](input, context);
+		if (normalized.type !== 'image' || normalized.layout !== 'grid') {
+			return undefined;
+		}
+
+		return {
+			type: 'gallery-like',
+			value: { items: normalized.images, layout: 'grid' }
+		};
+	},
+	'app.offprint.block.imageCarousel': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.imageCarousel'](input, context);
+		if (normalized.type !== 'image' || normalized.layout !== 'carousel') {
+			return undefined;
+		}
+
+		return {
+			type: 'gallery-like',
+			value: { items: normalized.images, layout: 'carousel' }
+		};
+	},
+	'app.offprint.block.button': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.button'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'button') {
+			return undefined;
+		}
+
+		return {
+			type: 'button-like',
+			value: {
+				url: normalized.url,
+				text: normalized.text,
+				align: getAlign(input.alignment) ?? getAlign(input.align)
+			}
+		};
+	},
+	'app.offprint.block.blueskyPost': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.blueskyPost'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'bluesky-post') {
+			return undefined;
+		}
+
+		return {
+			type: 'bluesky-post-like',
+			value: {
+				uri: getStringFromRecord(input.post, 'uri'),
+				cid: getStringFromRecord(input.post, 'cid'),
+				clientHost: getString(input.clientHost)
+			}
+		};
+	},
+	'app.offprint.block.webBookmark': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.webBookmark'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'link') {
+			return undefined;
+		}
+
+		return {
+			type: 'rich-link-like',
+			value: {
+				url: normalized.url,
+				title: normalized.title,
+				description: getString(input.description),
+				siteName: getString(input.siteName),
+				previewImage: normalizePreviewImage(input)
+			}
+		};
+	},
+	'app.offprint.block.webEmbed': (input, context) => {
+		const normalized = offprintBlockNormalizers['app.offprint.block.webEmbed'](input, context);
+		if (normalized.type !== 'embed' || normalized.embedType !== 'link') {
+			return undefined;
+		}
+
+		return {
+			type: 'rich-link-like',
+			value: {
+				url: normalized.url,
+				title: normalized.title,
+				description: getString(input.description),
+				siteName: getString(input.siteName),
+				previewImage: normalizePreviewImage(input)
+			}
+		};
+	}
+};
 
 type BuildOffprintBlockNormalizersOptions = {
 	normalizeImage?: (input: unknown, aspectRatio?: unknown) => Image;
@@ -37,7 +238,7 @@ type BuildOffprintBlockNormalizersOptions = {
 
 function buildOffprintBlockNormalizers(
 	options: BuildOffprintBlockNormalizersOptions = {}
-): ItemNormalizers {
+): BlockNormalizerRegistry {
 	const normalizeImage = options.normalizeImage ?? defaultNormalizeImage;
 	const normalizeImages =
 		options.normalizeImages ?? ((input) => defaultNormalizeImages(input, normalizeImage));
@@ -183,7 +384,16 @@ function normalizeListItem(
 
 	return {
 		text,
-		blocks: text ? [{ type: 'paragraph', text, richText }] : undefined,
+		blocks: text
+			? [
+					{
+						type: 'paragraph',
+						text,
+						richText,
+						rawType: getStringFromRecord(input.content, '$type')
+					}
+				]
+			: undefined,
 		richText,
 		checked,
 		children: children?.length ? children : undefined
@@ -247,8 +457,30 @@ function defaultNormalizeImage(input: unknown, aspectRatio?: unknown): Image {
 	};
 }
 
+function extractItemsBlocks(
+	content: Record<string, unknown>,
+	warn: (warning: Warning) => void
+): { blocks: Array<{ input: unknown; path: string }> } {
+	if (!Array.isArray(content.items)) {
+		warn({
+			code: 'invalid_items',
+			message: 'Expected standard.site content items array',
+			path: 'content.items'
+		});
+		return { blocks: [] };
+	}
+
+	return {
+		blocks: content.items.map((input, index) => ({ input, path: `content.items[${index}]` }))
+	};
+}
+
 function getString(input: unknown) {
 	return typeof input === 'string' ? input : undefined;
+}
+
+function getAlign(input: unknown): Image['align'] {
+	return input === 'left' || input === 'center' || input === 'right' ? input : undefined;
 }
 
 function getNumber(input: unknown) {
@@ -276,4 +508,21 @@ function getRecordProperty(input: Record<string, unknown>, ...keys: string[]) {
 
 function isRecord(input: unknown): input is Record<string, unknown> {
 	return typeof input === 'object' && input !== null && !Array.isArray(input);
+}
+
+function normalizePreviewImage(source: Record<string, unknown>) {
+	const preview = getRecordProperty(source, 'preview', 'previewImage');
+	if (!preview) {
+		return undefined;
+	}
+
+	return {
+		cid: getStringFromRecord(preview.ref, '$link'),
+		src: getString(preview.url),
+		mimeType: getString(preview.mimeType),
+		width: getNumber(preview.width),
+		height: getNumber(preview.height),
+		alt: getString(preview.alt),
+		title: getString(preview.title)
+	};
 }

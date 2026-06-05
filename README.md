@@ -1,10 +1,10 @@
 # atfield-core
 
-`atfield-core` provides framework-agnostic AT Protocol data primitives for ATField.
+`atfield-core` provides framework-agnostic AT Protocol data primitives for atfield.
 
 It contains reusable identity, DID, repository, transport, schema, and provider logic that can be used by endpoint kits, static-site integrations, admin tools, CLIs, or other JavaScript/TypeScript applications.
 
-For a deployable SvelteKit endpoint provider built on top of this package, see [`atfield-kit`](https://github.com/tassis/atfield-kit).
+For a practical deployable example built on top of this package, see [`atfield-kit`](https://github.com/tassis/atfield-kit), a SvelteKit endpoint layer for exposing AT Protocol records as HTTP APIs.
 
 ## Install
 
@@ -38,7 +38,7 @@ import { createCore } from 'atfield-core';
 
 const core = createCore();
 
-const identity = await core.identity.resolveIdentity({
+const identity = await core.identity.resolve({
 	handle: 'example.bsky.social'
 });
 
